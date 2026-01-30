@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DASHBOARD API | JASA OTP PLATFORM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0d1117; color: #c9d1d9; }
+        .code-font { font-family: 'JetBrains Mono', monospace; }
+        .glass-card { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(48, 54, 61, 1); }
+        .neon-text { text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+        .side-menu-overlay { background: rgba(0,0,0,0.7); opacity: 0; pointer-events: none; transition: 0.3s; }
+        .side-menu-overlay.active { opacity: 1; pointer-events: auto; }
+        .side-drawer { transform: translateX(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .side-drawer.active { transform: translateX(0); }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-500/30">
+
+    <div id="overlay" class="side-menu-overlay fixed inset-0 z-[60]" onclick="toggleMenu()"></div>
+
+    <nav class="fixed top-0 w-full z-50 bg-[#0d1117]/90 border-b border-[#30363d] px-6 py-4 flex justify-between items-center backdrop-blur-md">
+        <a href="index.php" class="flex items-center gap-2 group text-gray-400 hover:text-white transition-all">
+            <div class="bg-[#161b22] p-2 rounded-lg border border-[#30363d] group-hover:border-blue-500">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </div>
+            <span class="font-bold text-sm tracking-tight uppercase">Dashboard</span>
+        </a>
+
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-2 rounded-xl shadow-lg shadow-blue-500/20">
+                <i data-lucide="shield-check" class="text-white w-6 h-6"></i>
+            </div>
+            <div class="hidden md:block">
+                <h1 class="font-extrabold text-white text-xl tracking-tighter leading-none">JASA OTP <span class="text-blue-500">API</span></h1>
+                <p class="text-[9px] uppercase tracking-[0.3em] text-gray-500 font-bold">Secure Gateway v2.0</p>
+            </div>
+        </div>
+
+        <button onclick="toggleMenu()" class="bg-[#161b22] p-2 rounded-lg border border-[#30363d] text-gray-400 hover:text-white transition-all active:scale-95">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </nav>
+
+    <div id="sideDrawer" class="side-drawer fixed top-0 right-0 h-full w-80 bg-[#161b22] z-[70] border-l border-[#30363d] p-8 shadow-2xl">
+        <div class="flex justify-between items-center mb-12">
+            <h2 class="text-xs font-black text-gray-500 uppercase tracking-widest">Navigation</h2>
+            <button onclick="toggleMenu()" class="text-gray-500 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        
+        <div class="space-y-4">
+            <a href="docsnomor.html" class="flex items-center justify-between p-4 rounded-2xl border border-[#30363d] hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="smartphone" class="w-5 h-5 text-gray-400 group-hover:text-blue-400"></i>
+                    <span class="font-bold text-gray-200 group-hover:text-white">API Nomor</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
+            </a>
+            <a href="docsdeposit.html" class="flex items-center justify-between p-4 rounded-2xl border border-[#30363d] hover:border-yellow-500/50 hover:bg-yellow-500/5 transition-all group">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="banknote" class="w-5 h-5 text-gray-400 group-hover:text-yellow-400"></i>
+                    <span class="font-bold text-gray-200 group-hover:text-white">API Deposit</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-600"></i>
+            </a>
+        </div>
+
+        <div class="absolute bottom-8 left-8 right-8">
+            <div class="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10">
+                <p class="text-[10px] text-blue-400 font-bold uppercase mb-2">Developer Support</p>
+                <a href="https://t.me/jarrGanteng" class="flex items-center gap-2 text-sm text-white font-bold hover:underline">
+                    <i data-lucide="send" class="w-4 h-4"></i> @jarrGanteng
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <main class="pt-28 pb-20 px-6 max-w-5xl mx-auto">
+        
+        <div class="mb-12">
+            <h2 class="text-4xl font-extrabold text-white tracking-tight mb-4">API <span class="text-blue-500 underline decoration-blue-500/30 underline-offset-8">Authorization</span></h2>
+            <p class="text-gray-400 leading-relaxed max-w-2xl">
+                Gunakan Personal Access Token ini untuk mengintegrasikan layanan JASA OTP ke dalam aplikasi Anda. Token ini memberikan akses penuh ke saldo dan layanan nomor virtual Anda.
+            </p>
+        </div>
+
+        <div class="glass-card rounded-[2.5rem] p-1 shadow-2xl mb-16 overflow-hidden">
+            <div class="bg-[#0d1117] rounded-[2.3rem] p-8 md:p-10">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest">Active Access Token</h3>
+                        </div>
+                        <p class="text-xs text-gray-500 italic">Dibuat secara otomatis untuk enkripsi SSL AES-256.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="regenerateKey()" class="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl text-xs font-black hover:bg-red-500 hover:text-white transition-all uppercase">
+                            <i data-lucide="refresh-cw" class="w-3 h-3"></i> Rotate Key
+                        </button>
+                    </div>
+                </div>
+
+                <div class="relative group mb-6">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl blur opacity-10 group-hover:opacity-30 transition duration-1000"></div>
+                    <div class="relative flex items-center">
+                        <input type="password" id="apiKeyDisplay" readonly value="Loading..." 
+                               class="w-full bg-black border border-[#30363d] rounded-2xl px-6 py-5 code-font text-blue-400 text-xl focus:outline-none focus:border-blue-500/50 pr-28 transition-all">
+                        
+                        <div class="absolute right-4 flex items-center gap-2">
+                            <button onclick="toggleKeyVisibility()" class="p-2 text-gray-500 hover:text-white transition-colors">
+                                <i data-lucide="eye" id="eyeIcon" class="w-6 h-6"></i>
+                            </button>
+                            <div class="w-[1px] h-6 bg-[#30363d]"></div>
+                            <button onclick="copyKey()" class="p-2 text-blue-500 hover:text-blue-400 transition-all">
+                                <i data-lucide="copy" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 pt-6 border-t border-[#30363d]">
+                    <div class="flex items-start gap-4">
+                        <div class="p-3 rounded-xl bg-blue-500/10 text-blue-500"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+                        <div>
+                            <p class="text-xs font-black text-white uppercase mb-1">Secure Header</p>
+                            <code class="text-[10px] text-gray-500">X-API-KEY: [your_key]</code>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="p-3 rounded-xl bg-indigo-500/10 text-indigo-500"><i data-lucide="globe" class="w-5 h-5"></i></div>
+                        <div>
+                            <p class="text-xs font-black text-white uppercase mb-1">Query Param</p>
+                            <code class="text-[10px] text-gray-500">?api_key=[your_key]</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-12">
+            <div class="flex items-center gap-4">
+                <div class="h-[2px] w-12 bg-blue-500"></div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-tighter">Terms of Service <span class="text-gray-600 font-light">& Privacy</span></h3>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="relative group">
+                    <div class="absolute -top-4 -left-4 text-6xl font-black text-white/5 group-hover:text-blue-500/10 transition-colors">01</div>
+                    <h4 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        Kebijakan Penggunaan
+                    </h4>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        API JASA OTP hanya diperuntukkan bagi penggunaan legal dan pengujian sistem. Pengguna dilarang keras melakukan manipulasi request, serangan DDoS, atau melakukan spamming massal yang dapat mengganggu stabilitas server. Pelanggaran berat akan mengakibatkan pemblokiran alamat IP dan API Key secara permanen tanpa pengembalian dana.
+                    </p>
+                </div>
+
+                <div class="relative group">
+                    <div class="absolute -top-4 -left-4 text-6xl font-black text-white/5 group-hover:text-yellow-500/10 transition-colors">02</div>
+                    <h4 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        Manajemen Saldo
+                    </h4>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        Sistem kami beroperasi dengan basis saldo prabayar. Seluruh transaksi bersifat final dan tidak dapat dibatalkan (Final Sale). Pengisian saldo (Top-up) dilakukan secara otomatis melalui payment gateway yang tersedia. Developer tidak bertanggung jawab atas kesalahan input nominal saat melakukan proses deposit mandiri.
+                    </p>
+                </div>
+
+                <div class="relative group">
+                    <div class="absolute -top-4 -left-4 text-6xl font-black text-white/5 group-hover:text-green-500/10 transition-colors">03</div>
+                    <h4 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        Jaminan OTP & Refund
+                    </h4>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        Kami menjamin pengembalian saldo (Refund) 100% secara otomatis jika nomor virtual yang dipesan tidak menerima kode verifikasi (SMS) dalam rentang waktu 10-20 menit. Namun, jika kode verifikasi sudah diterima (status sukses), maka transaksi dianggap selesai dan saldo tidak dapat dikembalikan dengan alasan apapun.
+                    </p>
+                </div>
+
+                <div class="relative group">
+                    <div class="absolute -top-4 -left-4 text-6xl font-black text-white/5 group-hover:text-red-500/10 transition-colors">04</div>
+                    <h4 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        Tanggung Jawab Keamanan
+                    </h4>
+                    <p class="text-gray-400 text-sm leading-relaxed text-justify">
+                        Keamanan API Key sepenuhnya berada di bawah kendali pengguna. Jangan pernah membagikan key Anda kepada pihak ketiga atau menyimpannya di script front-end (client-side) secara terbuka. Kami menyarankan penggunaan <i>Environment Variables</i> di server-side aplikasi Anda untuk meminimalisir risiko kebocoran data akses.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-28 pt-10 border-t border-[#30363d] text-center">
+            <p class="text-[10px] text-gray-600 font-black tracking-[0.4em] uppercase mb-4">Master Documentation v2.0.46</p>
+            <div class="flex justify-center gap-6 opacity-30 hover:opacity-100 transition-opacity">
+                <i data-lucide="shield" class="w-5 h-5"></i>
+                <i data-lucide="zap" class="w-5 h-5"></i>
+                <i data-lucide="code-2" class="w-5 h-5"></i>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        lucide.createIcons();
+    const BASE_API = 'api.php';
+    window.realApiKey = ""; 
+
+        function toggleMenu() {
+            document.getElementById('sideDrawer').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function toggleKeyVisibility() {
+            const input = document.getElementById('apiKeyDisplay');
+            const icon = document.getElementById('eyeIcon');
+            isKeyVisible = !isKeyVisible;
+            input.type = isKeyVisible ? 'text' : 'password';
+            icon.setAttribute('data-lucide', isKeyVisible ? 'eye-off' : 'eye');
+            lucide.createIcons();
+        }
+
+        async function loadProfile() {
+    try {
+        // Gunakan path relatif yang benar
+        const res = await axios.get('api.php?action=get_profile', { 
+            withCredentials: true 
+        });
+        
+        console.log("Response API:", res.data); // Cek di console (F12)
+
+        if(res.data.success && res.data.data) {
+            // Ambil API Key dari data profile
+            window.realApiKey = res.data.data.api_key;
+            
+            const displayInput = document.getElementById('apiKeyDisplay');
+            if(displayInput) {
+                displayInput.value = window.realApiKey;
+            }
+        } else {
+            document.getElementById('apiKeyDisplay').value = "NOT_LOGGED_IN";
+        }
+    } catch(e) { 
+        console.error("Error Detail:", e);
+        document.getElementById('apiKeyDisplay').value = "CONNECTION_ERROR"; 
+    }
+}
+
+    // Fungsi untuk menyalin API Key
+    function copyKey() {
+        if(!window.realApiKey || window.realApiKey === "CONNECTION_ERROR") return;
+        navigator.clipboard.writeText(window.realApiKey);
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'API Key berhasil disalin!',
+            showConfirmButton: false,
+            timer: 1500,
+            background: '#161b22',
+            color: '#fff'
+        });
+    }
+
+        async function regenerateKey() {
+        const { value: confirm } = await Swal.fire({
+            title: 'Reset API Token?',
+            text: "Aplikasi lama yang menggunakan key ini tidak akan bisa terhubung lagi!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444', // Red
+            cancelButtonColor: '#30363d',
+            confirmButtonText: 'Ya, Reset!',
+            background: '#161b22',
+            color: '#fff'
+        });
+
+        if (confirm) {
+            try {
+                const res = await axios.get(`${BASE_API}?action=reset_api_key`, { withCredentials: true });
+                if(res.data.success) {
+                    window.realApiKey = res.data.api_key;
+                    document.getElementById('apiKeyDisplay').value = window.realApiKey;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Rotated!',
+                        text: 'API Token baru telah dibuat.',
+                        background: '#161b22',
+                        color: '#fff'
+                    });
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Gagal mereset key', 'error');
+            }
+        }
+    }
+
+    // Jalankan fungsi load saat halaman dimuat
+    document.addEventListener('DOMContentLoaded', loadProfile);
+</script>
+</body>
+</html>

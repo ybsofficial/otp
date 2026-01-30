@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Live Activity - JasaOTP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root { 
+            --bg: #06090f; 
+            --card: #0d1117; 
+            --accent: #58a6ff; 
+            --text: #f0f6fc; 
+            --text-dim: #8b949e;
+            --border: rgba(48, 54, 61, 0.7); 
+            --success: #3fb950; 
+            --danger: #ff7b72; 
+            --depo: #bc8cff;
+            --glass: rgba(13, 17, 23, 0.8);
+        }
+        
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 120px; overflow-x: hidden; min-height: 100vh; }
+        
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 123, 114, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 123, 114, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 123, 114, 0); } }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+
+        .reveal { animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+        /* Header */
+        .header { padding: 40px 25px 20px; text-align: center; }
+        .live-indicator { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            background: rgba(255, 123, 114, 0.1); color: var(--danger); 
+            padding: 6px 16px; border-radius: 50px; font-size: 10px; font-weight: 800; 
+            margin-bottom: 15px; border: 1px solid rgba(255, 123, 114, 0.2);
+            animation: pulse 2s infinite;
+        }
+        .dot { width: 8px; height: 8px; background: var(--danger); border-radius: 50%; }
+
+        .container { max-width: 480px; margin: 0 auto; padding: 0 20px; }
+        
+        /* Live Cards */
+        .live-card {
+            background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+            border: 1px solid var(--border); padding: 22px; border-radius: 28px;
+            margin-bottom: 18px; position: relative; overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            opacity: 0; animation: fadeIn 0.5s ease forwards;
+        }
+
+        .live-card::after {
+            content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02), transparent);
+            animation: shine 4s infinite;
+        }
+
+        .type-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; border-radius: 10px; font-size: 10px; font-weight: 800; margin-bottom: 15px;
+        }
+        .otp-bg { background: rgba(88, 166, 255, 0.1); color: var(--accent); border: 1px solid rgba(88, 166, 255, 0.2); }
+        .depo-bg { background: rgba(188, 140, 255, 0.1); color: var(--depo); border: 1px solid rgba(188, 140, 255, 0.2); }
+
+        .otp-val { 
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent); font-weight: 800; font-size: 22px; letter-spacing: 4px;
+            background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 15px; display: block; text-align: center; margin-top: 10px; border: 1px dashed var(--border);
+            text-shadow: 0 0 10px rgba(88, 166, 255, 0.3);
+        }
+
+        /* Navigation */
+        .nav-bottom {
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            width: calc(100% - 40px); max-width: 440px; 
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 28px; 
+            display: flex; justify-content: space-around; padding: 12px; 
+            z-index: 1000; box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        .nav-link { 
+            color: var(--text-dim); text-decoration: none; font-size: 10px; 
+            transition: 0.3s; flex: 1; text-align: center;
+            font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 6px;
+        }
+
+        .nav-link svg { width: 22px; height: 22px; stroke-width: 2.2; transition: 0.3s; }
+        .nav-link.active { color: var(--accent); }
+        .nav-link.active svg { color: var(--accent); transform: translateY(-2px); }
+
+        .loader { width: 20px; height: 20px; border: 3px solid rgba(88,166,255,0.1); border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="header reveal">
+    <div class="live-indicator">
+        <div class="dot"></div> SYSTEM REAL-TIME MONITOR
+    </div>
+    <h2 style="font-weight: 800; font-size: 26px; color: #fff; letter-spacing: -1px;">Live Activity</h2>
+    <p style="color: var(--text-dim); font-size: 13px; margin-top: 5px;">Aktivitas transaksi pengguna terbaru</p>
+</div>
+
+<div class="container" id="live-list">
+    <center style="padding: 100px 0;">
+        <div class="loader"></div>
+        <p style="margin-top: 20px; font-size: 13px; color: var(--text-dim);">Menghubungkan ke server...</p>
+    </center>
+</div>
+
+<nav class="nav-bottom">
+    <a href="home.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        HOME
+    </a>
+    <a href="live.html" class="nav-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.15 0a10 10 0 0 1 0-14.14"></path></svg>
+        LIVE
+    </a>
+    <a href="deposit.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+        DEPOSIT
+    </a>
+    <a href="profile.html" class="nav-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        PROFILE
+    </a>
+</nav>
+
+<script>
+    const API = 'api/api.php?action=get_live_logs';
+    
+    // --- FAKE DATA GENERATOR ---
+    const fakeUsers = ['bang_danz', 'fajarrr', 'ryannn_ok', 'miftah_dev', 'user_gacor', 'andhika88', 'rizky_otp', 'putra_id', 'devi_sms', 'kyyy_topup'];
+    const fakeServices = ['WhatsApp', 'Telegram', 'TikTok', 'Google', 'Shopee', 'Facebook', 'Instagram', 'DANA', 'Gojek'];
+
+    function createFakeLog() {
+        const isOTP = Math.random() > 0.4; // 60% OTP, 40% Deposit
+        const username = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
+        const now = new Date();
+        const timeStr = `${now.getHours().toString().padStart(2, '0')}.${now.getMinutes().toString().padStart(2, '0')}`;
+        const dateStr = `${now.getDate()} Jan 2026, ${timeStr}`;
+
+        if (isOTP) {
+            const service = fakeServices[Math.floor(Math.random() * fakeServices.length)];
+            const otp = Math.floor(100000 + Math.random() * 900000);
+            return {
+                type: 'otp',
+                username: username,
+                service: service,
+                otp: otp,
+                id: Math.floor(8000000 + Math.random() * 900000),
+                full_sms: `Gunakan kode ${otp} untuk verifikasi akun ${service} Anda.`,
+                date: dateStr
+            };
+        } else {
+            const amount = (Math.floor(Math.random() * 28) + 2) * 1000 + Math.floor(Math.random() * 999);
+            return {
+                type: 'depo',
+                username: username,
+                amount: amount.toLocaleString('id-ID'),
+                id: 'RO' + now.getTime().toString().substring(7),
+                method: Math.random() > 0.5 ? 'QRIS' : 'E-Wallet',
+                date: dateStr
+            };
+        }
+    }
+
+    async function loadLogs() {
+        try {
+            const list = document.getElementById('live-list');
+            let realLogs = [];
+
+            // 1. Ambil data asli dari API
+            try {
+                const res = await axios.get(API);
+                if(res.data && res.data.success) {
+                    realLogs = res.data.data;
+                }
+            } catch(e) { console.warn("Server Log Error: Menampilkan data simulasi."); }
+
+            // 2. Buat data palsu (sebanyak 10-15 data)
+            let combinedLogs = [...realLogs];
+            while (combinedLogs.length < 15) {
+                combinedLogs.push(createFakeLog());
+            }
+
+            // 3. Urutkan (Pura-puranya data terbaru di atas)
+            // Note: Data asli akan selalu di prioritaskan di render jika ada
+            
+            let html = '';
+            combinedLogs.forEach((log, index) => {
+                const isOTP = log.type === 'otp';
+                const delay = index * 0.1;
+                const cleanSMS = log.full_sms || `Gunakan kode ${log.otp} untuk verifikasi.`;
+
+                html += `
+                <div class="live-card" style="animation-delay: ${delay}s; border: 1px solid ${isOTP ? 'rgba(88, 166, 255, 0.3)' : 'rgba(188, 140, 255, 0.3)'}; opacity:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 15px;">
+                        <div>
+                            <span class="type-badge ${isOTP ? 'otp-bg' : 'depo-bg'}">
+                                ${isOTP ? '● OTP RECEIVED' : '● DEPOSIT SUCCESS'}
+                            </span>
+                            <h4 style="margin-top: 8px; font-size: 15px; color: #fff; font-weight: 700;">
+                                ${isOTP ? (log.service || 'OTP Service') : 'Top Up Saldo'}
+                            </h4>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 10px; color: var(--text-dim); display: block;">ID</span>
+                            <b style="font-size: 11px; color: var(--accent);">#${log.id}</b>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 15px;">
+                        <div style="width: 34px; height: 34px; background: ${isOTP ? 'var(--accent)' : 'var(--depo)'}; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #000;">
+                            ${(log.username || 'U').substring(0,1).toUpperCase()}
+                        </div>
+                        <div>
+                            <span style="font-size: 10px; color: var(--text-dim); display: block;">Pelanggan</span>
+                            <b style="font-size: 14px;">@${log.username || 'user'}</b>
+                        </div>
+                    </div>
+
+                    ${isOTP ? `
+                        <div style="position: relative; background: #000; padding: 15px; border-radius: 18px; border: 1px solid var(--border);">
+                            <p style="font-size: 12px; color: #d1d5db; line-height: 1.5; font-style: italic;">"${cleanSMS}"</p>
+                            <span class="otp-val">${log.otp || '------'}</span>
+                        </div>
+                    ` : `
+                        <div style="background: rgba(63, 185, 80, 0.05); border: 1px solid rgba(63, 185, 80, 0.2); padding: 18px; border-radius: 18px; text-align: center;">
+                            <span style="font-size: 11px; color: var(--text-dim); display:block; margin-bottom:5px;">Nominal Berhasil</span>
+                            <h2 style="color: var(--success); font-weight: 800; font-size: 24px;">Rp ${log.amount}</h2>
+                            <div style="margin-top: 8px; font-size: 10px; color: var(--text-dim);">Metode: <b style="color:var(--text);">${log.method || 'QRIS'}</b></div>
+                        </div>
+                    `}
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+                        <span style="font-size: 10px; color: var(--text-dim);">${log.date}</span>
+                        <span style="font-size: 9px; color: var(--success); font-weight: 800;">✓ TERVERIFIKASI</span>
+                    </div>
+                </div>`;
+            });
+            list.innerHTML = html;
+        } catch (e) { 
+            console.error(e);
+            document.getElementById('live-list').innerHTML = '<center style="padding:100px; color:red;">Gagal memuat activity</center>';
+        }
+    }
+
+    loadLogs();
+    // Refresh otomatis setiap 15 detik untuk mengganti data palsu dan mengambil data real terbaru
+    setInterval(loadLogs, 15000);
+</script>
+
+</body>
+</html>

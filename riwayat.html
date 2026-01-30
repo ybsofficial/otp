@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing History - JasaOTP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root { 
+            --bg: #0b0e14; 
+            --card: #151921; 
+            --accent: #58a6ff; 
+            --border: #2d333b; 
+            --success: #3fb950;
+            --text-dim: #8b949e;
+            --glass: rgba(11, 14, 20, 0.9);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: #fff; min-height: 100vh; padding-bottom: 40px; overflow-x: hidden; }
+
+        @keyframes revealCard {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .navbar {
+            padding: 18px 20px; background: var(--glass); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border); display: flex; align-items: center;
+            justify-content: space-between; position: sticky; top: 0; z-index: 1000;
+        }
+
+        .back-btn {
+            width: 42px; height: 42px; border-radius: 12px; background: var(--card);
+            border: 1px solid var(--border); display: flex; align-items: center;
+            justify-content: center; color: #fff; text-decoration: none;
+        }
+
+        .container { max-width: 480px; margin: 0 auto; padding: 20px; }
+
+        .balance-card {
+            background: linear-gradient(135deg, #1f6feb 0%, #161b22 100%);
+            border-radius: 28px; padding: 28px; margin-bottom: 35px;
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: revealCard 0.6s ease-out;
+        }
+
+        .balance-card span { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.6); text-transform: uppercase; }
+        .balance-card h2 { font-size: 36px; font-weight: 800; margin: 10px 0; }
+
+        .section-title { display: flex; justify-content: space-between; margin-bottom: 20px; color: var(--text-dim); font-size: 14px; font-weight: 800; }
+
+        .trx-item {
+            background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+            padding: 22px; margin-bottom: 20px; animation: revealCard 0.6s both;
+        }
+
+        .trx-main { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+        .icon-box {
+            width: 50px; height: 50px; background: rgba(88,166,255,0.1); border-radius: 15px;
+            display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 22px;
+        }
+
+        .amount-text { font-size: 18px; font-weight: 800; color: var(--success); text-align: right; }
+        .status-badge { font-size: 10px; font-weight: 800; padding: 4px 10px; background: rgba(63,185,80,0.1); color: var(--success); border-radius: 8px; border: 1px solid rgba(63,185,80,0.2); }
+
+        .trx-details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
+        .detail-cell label { display: block; font-size: 9px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+        .detail-cell span { font-size: 12px; font-weight: 600; color: #fff; }
+
+        .loading { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s infinite linear; margin: 50px auto; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="profile.html" class="back-btn"><i class="fa-solid fa-chevron-left"></i></a>
+        <h3 style="font-weight: 800;">Billing History</h3>
+        <i class="fa-solid fa-receipt" style="color: var(--accent); font-size: 20px;"></i>
+    </nav>
+
+    <div class="container">
+        <div class="balance-card">
+            <span>Active Balance</span>
+            <h2 id="balance-val">Rp 0</h2>
+            <div style="font-size: 11px; opacity: 0.8;"><i class="fa-solid fa-shield-check" style="color: var(--success);"></i> Verified Encrypted Account</div>
+        </div>
+
+        <div class="section-title"><h3>SUCCESS DEPOSITS</h3><i class="fa-solid fa-sliders"></i></div>
+        <div id="history-list"><div class="loading"></div></div>
+    </div>
+
+    <script>
+        // Fungsi krusial untuk memperbaiki angka Rp 3/4 menjadi ribuan (3000/4000)
+        function formatFullRupiah(amount) {
+            let val = parseFloat(amount);
+            if (isNaN(val)) return 'Rp 0';
+            
+            // Logika Perbaikan: Jika angka di bawah 100, asumsikan itu ribuan (misal 4 -> 4000)
+            // Ini biasanya terjadi jika API mengirim data dalam format kelipatan k
+            if (val > 0 && val < 100) {
+                val = val * 1000;
+            }
+
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(val);
+        }
+
+        async function fetchBilling() {
+            const list = document.getElementById('history-list');
+            try {
+                const [resProfile, resLogs] = await Promise.all([
+                    axios.get('../api/api.php?action=get_profile'),
+                    axios.get('../api/api.php?action=get_live_logs')
+                ]);
+
+                if(resProfile.data.success) {
+                    document.getElementById('balance-val').innerText = formatFullRupiah(resProfile.data.data.saldo);
+                }
+
+                const logs = resLogs.data.data.filter(l => l.type.toLowerCase().includes('deposit'));
+                if (logs.length === 0) {
+                    list.innerHTML = '<p style="text-align:center; opacity:0.5; padding:20px;">Belum ada riwayat deposit.</p>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                logs.forEach((log, i) => {
+                    list.innerHTML += `
+                        <div class="trx-item" style="animation-delay: ${i * 0.1}s">
+                            <div class="trx-main">
+                                <div style="display:flex; gap:15px; align-items:center;">
+                                    <div class="icon-box"><i class="fa-solid fa-wallet"></i></div>
+                                    <div>
+                                        <h4 style="font-size:15px; font-weight:700;">Top Up Saldo</h4>
+                                        <p style="font-size:11px; color:var(--text-dim);"><i class="fa-regular fa-calendar"></i> ${log.date}</p>
+                                    </div>
+                                </div>
+                                <div class="trx-side">
+                                    <div class="amount-text">+ ${formatFullRupiah(log.amount)}</div>
+                                    <span class="status-badge">SUCCESS</span>
+                                </div>
+                            </div>
+                            <div class="trx-details">
+                                <div class="detail-cell"><label>Transaction ID</label><span>#${log.id || 'N/A'}</span></div>
+                                <div class="detail-cell" style="text-align:right;"><label>Payment Method</label><span>QRIS Automatic</span></div>
+                                <div class="detail-cell"><label>Gateway</label><span>JasaOTP Billing</span></div>
+                                <div class="detail-cell" style="text-align:right;"><label>Fee</label><span style="color:var(--success);">Rp 0 (Free)</span></div>
+                            </div>
+                        </div>`;
+                });
+            } catch (err) {
+                list.innerHTML = '<p style="text-align:center; color:red;">Gagal memuat data.</p>';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', fetchBilling);
+    </script>
+</body>
+</html>

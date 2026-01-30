@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Owner Mobile | Control Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --card: #161b22;
+            --border: rgba(48, 54, 61, 0.8);
+            --accent: #58a6ff;
+            --success: #3fb950;
+            --error: #f85149;
+            --text-main: #f0f6fc;
+            --text-dim: #8b949e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text-main); padding-bottom: 80px; }
+
+        /* Header Area */
+        .header { padding: 25px 20px; background: linear-gradient(to bottom, #161b22, transparent); }
+        .header h1 { font-size: 22px; font-weight: 800; color: var(--accent); }
+        .status-pill { 
+            display: inline-flex; align-items: center; gap: 6px; 
+            background: rgba(63, 185, 80, 0.1); padding: 5px 12px; 
+            border-radius: 20px; font-size: 10px; font-weight: 700; color: var(--success);
+            margin-top: 8px; border: 1px solid rgba(63, 185, 80, 0.2);
+        }
+
+        /* Maintenance Section */
+        .mt-box { 
+            margin: 0 20px 25px; padding: 15px; border-radius: 16px; 
+            background: var(--card); border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mt-box p { font-size: 12px; font-weight: 600; }
+        .btn-mt { 
+            padding: 8px 15px; border-radius: 10px; border: none; 
+            font-size: 11px; font-weight: 700; color: #fff; cursor: pointer;
+        }
+
+        /* Stats Grid */
+        .stats-container { 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px; margin-bottom: 25px;
+        }
+        .stat-card { 
+            background: var(--card); padding: 15px; border-radius: 16px; border: 1px solid var(--border);
+            position: relative; overflow: hidden;
+        }
+        .stat-card.wide { grid-column: span 2; border-color: var(--accent); background: linear-gradient(135deg, #161b22, #0d1117); }
+        .stat-card h3 { font-size: 10px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px; }
+        .stat-card p { font-size: 18px; font-weight: 800; }
+        .stat-card i { position: absolute; right: 10px; bottom: 10px; font-size: 24px; opacity: 0.1; color: var(--accent); }
+
+        /* User Management Table */
+        .section-title { padding: 0 20px; margin-bottom: 15px; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+        .search-box { margin: 0 20px 15px; position: relative; }
+        .search-box input { 
+            width: 100%; background: var(--card); border: 1px solid var(--border); 
+            padding: 12px 15px 12px 40px; border-radius: 12px; color: #fff; outline: none;
+        }
+        .search-box i { position: absolute; left: 15px; top: 14px; color: var(--text-dim); }
+
+        .user-list { padding: 0 20px; }
+        .user-card { 
+            background: var(--card); padding: 15px; border-radius: 16px; 
+            border: 1px solid var(--border); margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .user-info h4 { font-size: 14px; font-weight: 700; }
+        .user-info span { font-size: 11px; color: var(--text-dim); }
+        .user-balance { color: var(--success); font-weight: 700; font-size: 13px; }
+        .btn-manage { 
+            background: #21262d; border: 1px solid var(--border); color: #fff;
+            padding: 8px 12px; border-radius: 10px; font-size: 11px; font-weight: 600;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; background: #0d1117; 
+            border-top: 1px solid var(--border); display: flex; justify-content: space-around;
+            padding: 12px 0; z-index: 100;
+        }
+        .nav-link { color: var(--text-dim); text-align: center; font-size: 10px; text-decoration: none; }
+        .nav-link i { display: block; font-size: 18px; margin-bottom: 4px; }
+        .nav-link.active { color: var(--accent); }
+
+        /* Helpers */
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; margin-left: 5px; }
+        .badge-active { background: rgba(63,185,80,0.2); color: var(--success); }
+        .badge-banned { background: rgba(248,81,73,0.2); color: var(--error); }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Owner Panel</h1>
+        <div class="status-pill"><i class="fas fa-circle" style="font-size:7px"></i> SYSTEM ONLINE</div>
+    </div>
+
+    <div class="mt-box">
+        <div>
+            <p id="mt-status-text">Memuat status...</p>
+        </div>
+        <button id="mt-btn" class="btn-mt" onclick="toggleMT()">LOADING</button>
+    </div>
+
+        <div class="stats-container">
+        <div class="stat-card">
+            <h3><i class="fas fa-key"></i> API JasaOTP</h3>
+            <p id="saldo-pusat">Rp 0</p>
+        </div>
+        <div class="stat-card">
+            <h3><i class="fas fa-wallet"></i> API Atlantic</h3>
+            <p id="saldo-atlantic" style="color:var(--accent)">Rp 0</p>
+        </div>
+        
+        <div class="stat-card">
+            <h3>Total Users</h3>
+            <p id="s-user">0</p>
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-card">
+            <h3>User Active</h3>
+            <p id="s-active">0</p>
+            <i class="fas fa-bolt"></i>
+        </div>
+    </div>
+
+    <div class="section-title">
+        <i class="fas fa-user-shield" style="color:var(--accent)"></i> Manajemen User
+    </div>
+
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="userSearch" placeholder="Cari username..." onkeyup="filterUsers()">
+    </div>
+
+    <div id="user-list-container" class="user-list">
+        </div>
+
+    <nav class="bottom-nav">
+        <a href="#" class="nav-link active"><i class="fas fa-home"></i>Dashboard</a>
+        <a href="#" class="nav-link"><i class="fas fa-exchange-alt"></i>Log Trx</a>
+        <a href="#" class="nav-link" style="color:var(--error)" onclick="location.href='index.html'"><i class="fas fa-sign-out-alt"></i>Logout</a>
+    </nav>
+
+    <script>
+        let cachedUsers = {};
+
+        // 1. Load Data (Gabungan & Fix NaN)
+                async function loadAdminData() {
+            try {
+                const res = await axios.get('../api/api.php?action=get_admin_stats');
+                if(!res.data.success) return;
+
+                const { stats, users, maintenance } = res.data;
+                cachedUsers = users;
+
+                // Update Status Maintenance
+                updateMTUI(maintenance);
+                
+                // Update Saldo JasaOTP
+                document.getElementById('saldo-pusat').innerText = 'Rp ' + (parseInt(stats.saldo_jasaotp) || 0).toLocaleString();
+                
+                // Update Saldo Atlantic
+                document.getElementById('saldo-atlantic').innerText = 'Rp ' + (parseInt(stats.saldo_atlantic) || 0).toLocaleString();
+                
+                // Update Statistik User
+                document.getElementById('s-user').innerText = stats.total_user || 0;
+                
+                renderUserCards(users);
+            } catch (e) { 
+                console.error("Gagal memuat data admin:", e); 
+            }
+        }
+
+        // 2. Render Versi Card (Bukan Tabel) agar pas di HP
+        function renderUserCards(users) {
+            const container = document.getElementById('user-list-container');
+            container.innerHTML = '';
+            let activeCount = 0;
+
+            Object.entries(users).forEach(([username, data]) => {
+                if(data.status !== 'banned') activeCount++;
+                const isBanned = data.status === 'banned';
+
+                const div = document.createElement('div');
+                div.className = 'user-card';
+                div.setAttribute('data-name', username.toLowerCase());
+                div.innerHTML = `
+                    <div class="user-info">
+                        <h4>${username} <span class="badge ${isBanned ? 'badge-banned' : 'badge-active'}">${isBanned ? 'BANNED' : 'ACTIVE'}</span></h4>
+                        <div class="user-balance">Rp ${(parseInt(data.saldo) || 0).toLocaleString()}</div>
+                    </div>
+                    <button class="btn-manage" onclick="showUserDetail('${username}')">Manage</button>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('s-active').innerText = activeCount;
+        }
+
+        // 3. Search Filter
+        function filterUsers() {
+            const q = document.getElementById('userSearch').value.toLowerCase();
+            document.querySelectorAll('.user-card').forEach(card => {
+                const name = card.getAttribute('data-name');
+                card.style.display = name.includes(q) ? 'flex' : 'none';
+            });
+        }
+
+        // 4. Modal Management (Fix No Response)
+        function showUserDetail(username) {
+            const user = cachedUsers[username];
+            if(!user) return;
+
+            Swal.fire({
+                title: username,
+                background: '#161b22',
+                color: '#fff',
+                html: `
+                    <div style="text-align:left; font-size:13px">
+                        Saldo: <b style="color:var(--success)">Rp ${parseInt(user.saldo).toLocaleString()}</b><br>
+                        Status: <b>${user.status}</b>
+                    </div>
+                `,
+                showDenyButton: true,
+                confirmButtonText: 'Update Saldo',
+                denyButtonText: user.status === 'banned' ? 'Unban' : 'Ban User',
+                confirmButtonColor: 'var(--accent)',
+            }).then((result) => {
+                if (result.isConfirmed) manageSaldo(username);
+                else if (result.isDenied) toggleStatus(username, user.status);
+            });
+        }
+
+        // 5. Backend Actions
+        async function manageSaldo(user) {
+            const { value: amount } = await Swal.fire({
+                title: 'Update Saldo',
+                input: 'number',
+                inputPlaceholder: 'Gunakan minus (-) untuk mengurangi',
+                background: '#161b22', color: '#fff'
+            });
+
+            if (amount) {
+                const type = amount > 0 ? 'add_saldo' : 'reduce_saldo';
+                await axios.post('../api/api.php?action=manage_user', new URLSearchParams({
+                    target_user: user, type: type, value: Math.abs(amount)
+                }));
+                loadAdminData();
+            }
+        }
+
+        async function toggleStatus(user, current) {
+            const type = current === 'banned' ? 'unbanned' : 'banned';
+            await axios.post('../api/api.php?action=manage_user', new URLSearchParams({
+                target_user: user, type: type
+            }));
+            loadAdminData();
+        }
+
+        async function toggleMT() {
+            const res = await axios.get('../api/api.php?action=toggle_maintenance');
+            updateMTUI(res.data.maintenance);
+        }
+
+        function updateMTUI(isMT) {
+            const btn = document.getElementById('mt-btn');
+            const txt = document.getElementById('mt-status-text');
+            if(isMT) {
+                btn.innerText = 'OFF'; btn.style.background = 'var(--success)';
+                txt.innerText = 'MAINTENANCE AKTIF'; txt.style.color = 'var(--error)';
+            } else {
+                btn.innerText = 'ON'; btn.style.background = 'var(--error)';
+                txt.innerText = 'SISTEM NORMAL'; txt.style.color = 'var(--success)';
+            }
+        }
+
+        loadAdminData();
+        setInterval(loadAdminData, 20000);
+    </script>
+</body>
+</html>

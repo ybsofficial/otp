@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JasaOTP | Secure Cloud Registration</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+    <style>
+        :root { 
+            --bg: #020408; 
+            --card: rgba(10, 14, 20, 0.95); 
+            --accent: #58a6ff; 
+            --accent-glow: rgba(88, 166, 255, 0.3); 
+            --border: rgba(48, 54, 61, 0.7); 
+            --text-main: #f0f6fc; 
+            --text-dim: #8b949e; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Animated Mesh Gradient Background */
+        .bg-mesh {
+            position: fixed; width: 100%; height: 100%; top: 0; left: 0;
+            background: 
+                radial-gradient(at 0% 0%, hsla(210,100%,15%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(220,100%,10%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 100%, hsla(210,100%,5%,1) 0, transparent 50%), 
+                radial-gradient(at 0% 100%, hsla(220,100%,15%,1) 0, transparent 50%);
+            z-index: -2;
+        }
+
+        .aurora { 
+            position: fixed; width: 150%; height: 150%; top: -25%; left: -25%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%); 
+            z-index: -1; animation: rotateAurora 20s infinite linear; 
+        }
+        @keyframes rotateAurora { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Main Glass Card */
+        .login-box { 
+            width: 100%; max-width: 410px; padding: 45px 30px; 
+            background: var(--card); border: 1px solid var(--border); 
+            border-radius: 32px; box-shadow: 0 40px 100px rgba(0,0,0,0.8); 
+            backdrop-filter: blur(20px); text-align: center;
+            position: relative; overflow: hidden;
+        }
+
+        .login-box::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            animation: borderFlow 3s infinite;
+        }
+        @keyframes borderFlow { 100% { left: 100%; } }
+
+        .logo-svg { width: 80px; height: 80px; margin-bottom: 20px; filter: drop-shadow(0 0 20px var(--accent)); }
+        .brand-name { font-size: 28px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 5px; }
+        .brand-name span { color: var(--accent); }
+        .tagline { font-size: 13px; color: var(--text-dim); margin-bottom: 35px; letter-spacing: 0.2px; }
+
+        /* Inputs */
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { font-size: 11px; font-weight: 800; color: var(--text-dim); text-transform: uppercase; margin-left: 12px; display: block; margin-bottom: 8px; }
+
+        .input-box { position: relative; display: flex; align-items: center; }
+        .input-box i { position: absolute; left: 18px; color: var(--text-dim); transition: 0.3s; }
+        
+        input { 
+            width: 100%; background: #010409; border: 1.5px solid var(--border); 
+            padding: 18px 18px 18px 52px; border-radius: 18px; color: #fff; 
+            font-size: 15px; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 20px var(--accent-glow); outline: none; background: rgba(88, 166, 255, 0.03); }
+        input:focus + i { color: var(--accent); transform: scale(1.1); }
+
+        /* Button */
+        .btn-reg { 
+            width: 100%; padding: 20px; background: #fff; color: #000; 
+            border: none; border-radius: 20px; font-size: 16px; font-weight: 800; 
+            cursor: pointer; display: flex; align-items: center; justify-content: center; 
+            gap: 12px; transition: 0.4s; margin-top: 15px;
+        }
+        .btn-reg:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(255,255,255,0.15); }
+        .btn-reg:disabled { opacity: 0.6; filter: grayscale(1); }
+
+        .loader { width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.1); border-top: 3px solid #000; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* OTP Details Layout */
+        .otp-badge { background: rgba(88, 166, 255, 0.1); border: 1px solid var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 11px; color: var(--accent); font-weight: 700; margin-bottom: 10px; display: inline-block; }
+        .otp-info-card { text-align: left; background: #161b22; padding: 15px; border-radius: 16px; border: 1px solid #30363d; margin-top: 15px; font-size: 13px; color: #8b949e; line-height: 1.6; }
+        .otp-info-card b { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="bg-mesh"></div>
+    <div class="aurora"></div>
+
+    <main class="login-box animate__animated animate__fadeInUp">
+        <svg class="logo-svg" viewBox="0 0 100 100">
+            <path class="animate__animated animate__pulse animate__infinite" d="M50 10L90 30V70L50 90L10 70V30L50 10Z" stroke="var(--accent)" stroke-width="6" fill="none"/>
+            <path d="M35 50L45 60L65 40" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1 class="brand-name">JASA<span>OTP</span></h1>
+        <p class="tagline">Sistem Pendaftaran Keamanan Terenkripsi</p>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label>Email Terverifikasi</label>
+                <div class="input-box">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="nama@email.com" required autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Username Baru</label>
+                <div class="input-box">
+                    <i class="fas fa-user-circle"></i>
+                    <input type="text" id="username" placeholder="Identifier unik" required autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Password Akun</label>
+                <div class="input-box">
+                    <i class="fas fa-key"></i>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-reg" id="btnSubmit">
+                <div class="loader" id="loader"></div>
+                <span id="btnText">KONFIRMASI DATA</span>
+            </button>
+        </form>
+
+        <p style="margin-top: 30px; font-size: 13px; color: var(--text-dim);">
+            Sudah terdaftar? <a href="login.html" style="color: var(--accent); text-decoration: none; font-weight: 800;">Masuk Sekarang</a>
+        </p>
+    </main>
+
+    <script>
+        // Init EmailJS
+        (function(){ emailjs.init("AnnLeh_SN3vg9jQM1"); })();
+
+        document.getElementById('registerForm').onsubmit = async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const btn = document.getElementById('btnSubmit');
+            const loader = document.getElementById('loader');
+            const btnText = document.getElementById('btnText');
+
+            btn.disabled = true;
+            loader.style.display = 'block';
+            btnText.innerText = 'PENGECEKAN...';
+
+            try {
+                // 1. CEK USER KE API (Sesuai case 'check_user' di api.php lo)
+                const check = await axios.post('../api/api.php?action=check_user', new URLSearchParams({ email, username: user }));
+
+                if(!check.data.success) {
+                    throw new Error(check.data.message || "Username/Email sudah ada!");
+                }
+
+                btnText.innerText = 'MENGIRIM KODE...';
+
+                // 2. KIRIM OTP
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+                await emailjs.send("service_rsxrs18", "template_kslipmq", { to_email: email, otp });
+
+                // 3. POPUP OTP ULTRA RAPI
+                const { value: otpInput } = await Swal.fire({
+                    title: 'Verification Needed',
+                    html: `
+                        <div class="otp-badge"><i class="fas fa-shield-alt"></i> HIGH SECURITY MODE</div>
+                        <p style="font-size:14px; color:#8b949e">Kami telah mengirimkan 6 digit kode keamanan ke <b>${email}</b></p>
+                        <div class="otp-info-card">
+                            • Cek folder <b>Spam</b> jika kode tidak muncul.<br>
+                            • Kode ini bersifat rahasia.<br>
+                            • Pastikan email yang anda masukkan aktif.
+                        </div>
+                    `,
+                    input: 'text',
+                    inputPlaceholder: '______',
+                    background: '#0d1117',
+                    color: '#fff',
+                    confirmButtonText: 'VERIFIKASI AKUN',
+                    confirmButtonColor: '#58a6ff',
+                    showCancelButton: true,
+                    cancelButtonText: 'BATAL',
+                    inputAttributes: { 
+                        maxlength: 6, 
+                        style: 'text-align:center; font-size:32px; letter-spacing:12px; font-weight:800; background:#010409; border:2px solid #30363d; color:#58a6ff; margin-top:20px;' 
+                    },
+                    preConfirm: (v) => v === otp ? v : Swal.showValidationMessage('KODE OTP SALAH!')
+                });
+
+                if(otpInput) {
+                    Swal.fire({ title: 'Finalisasi Akun...', background: '#0d1117', color: '#fff', didOpen: () => Swal.showLoading() });
+                    
+                    const res = await axios.post('../api/api.php?action=register', new URLSearchParams({ username: user, password: pass, email }));
+
+                    if(res.data.success) {
+                        Swal.fire({ icon: 'success', title: 'ACCESS GRANTED', text: 'Akun Anda berhasil didaftarkan!', background: '#0d1117', color: '#fff', timer: 2500, showConfirmButton: false });
+                        setTimeout(() => window.location.href = 'login.html', 2500);
+                    } else { throw new Error(res.data.message); }
+                }
+
+            } catch (err) {
+                Swal.fire({ icon: 'error', title: 'ACCESS DENIED', text: err.message, background: '#0d1117', color: '#fff' });
+            } finally {
+                btn.disabled = false; loader.style.display = 'none'; btnText.innerText = 'KONFIRMASI DATA';
+            }
+        };
+    </script>
+</body>
+</html>

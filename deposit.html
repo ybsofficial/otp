@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Premium Deposit - JasaOTP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --bg: #03070c; 
+            --card: #0b111a; 
+            --accent: #58a6ff; 
+            --accent-glow: rgba(88, 166, 255, 0.4);
+            --text-main: #ffffff; 
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08); 
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --gold: #f2cc60;
+            --glass: rgba(11, 17, 26, 0.85);
+            --surface: rgba(255, 255, 255, 0.03);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            padding-bottom: 140px;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at top right, rgba(88, 166, 255, 0.05), transparent 400px);
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .reveal { animation: slideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .container { max-width: 480px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- Header --- */
+        .header { padding: 40px 25px 25px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .header-title h1 { font-size: 26px; font-weight: 800; letter-spacing: -1px; margin-top: 4px; }
+        .header-title span { font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
+
+        /* --- Main Card --- */
+        .main-card { 
+            background: linear-gradient(165deg, #121d2b 0%, #0b111a 100%);
+            border: 1px solid var(--border); 
+            border-radius: 35px; 
+            padding: 30px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            position: relative; 
+            margin-bottom: 25px;
+        }
+
+        .input-box { 
+            background: rgba(0,0,0,0.4); 
+            border: 1px solid var(--border); 
+            border-radius: 22px; 
+            padding: 10px 20px; 
+            display: flex; 
+            align-items: center; 
+            margin-top: 15px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .input-box span { font-weight: 800; color: var(--text-dim); font-size: 20px; margin-right: 12px; }
+        .input-box input { width: 100%; background: transparent; border: none; padding: 15px 0; color: #fff; font-size: 28px; font-weight: 800; outline: none; }
+
+        .btn-premium { 
+            width: 100%; background: #fff; color: #000; border: none; padding: 20px; 
+            border-radius: 20px; font-weight: 800; font-size: 15px; margin-top: 25px; 
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .btn-premium:active { transform: scale(0.97); }
+
+        /* --- Payment Detail UI (Rombak Total) --- */
+        .payment-view { display: none; }
+        
+        .qr-section { text-align: center; padding: 10px 0 30px; }
+        .qr-container {
+            background: #fff; padding: 15px; border-radius: 25px; display: inline-block;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .qr-container img { width: 180px; height: 180px; display: block; }
+
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(242, 204, 96, 0.1); border: 1px solid rgba(242, 204, 96, 0.2);
+            padding: 8px 16px; border-radius: 100px; color: var(--gold);
+            font-size: 10px; font-weight: 800; letter-spacing: 1px; margin-bottom: 20px;
+        }
+        .status-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: pulse-glow 1.5s infinite; }
+
+        /* Detail List Styling */
+        .detail-group { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; }
+        .detail-header { padding: 15px 20px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); }
+        .detail-header span { font-size: 10px; font-weight: 800; color: var(--text-dim); letter-spacing: 1px; }
+
+        .detail-body { padding: 10px 0; }
+        .detail-item { padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .detail-item .label { font-size: 13px; color: var(--text-dim); font-weight: 500; }
+        .detail-item .value { font-size: 14px; color: #fff; font-weight: 700; }
+
+        .detail-footer { 
+            padding: 20px; background: rgba(16, 185, 129, 0.05); 
+            border-top: 1px dashed var(--border); display: flex; 
+            justify-content: space-between; align-items: center; 
+        }
+        .detail-footer .label { font-size: 12px; font-weight: 800; color: var(--success); }
+        .detail-footer .value { font-size: 22px; font-weight: 800; color: var(--success); }
+
+        /* --- Info Card --- */
+        .info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 25px; padding: 20px; margin-top: 20px; }
+        .info-card h4 { font-size: 11px; font-weight: 800; color: var(--accent); margin-bottom: 10px; letter-spacing: 1px; }
+        .info-card p { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+
+        /* --- Navbar (Fixed Structure) --- */
+        .navbar { 
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+            width: calc(100% - 40px); max-width: 440px; 
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 28px; 
+            display: flex; justify-content: space-around; padding: 12px; 
+            z-index: 1000; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .nav-item { 
+            text-decoration: none; color: var(--text-dim); font-size: 10px; font-weight: 800;
+            display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; transition: 0.3s;
+        }
+        .nav-item svg { width: 22px; height: 22px; stroke-width: 2.2; }
+        .nav-item.active { color: var(--accent); }
+
+        .loader { width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    </style>
+</head>
+<body>
+
+    <header class="header reveal">
+        <div class="header-title">
+            <span>Transaction</span>
+            <h1>Deposit Saldo</h1>
+        </div>
+        <div style="background: var(--surface); padding: 10px; border-radius: 12px; border: 1px solid var(--border);">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="step-input" class="main-card reveal" style="animation-delay: 0.1s;">
+            <p style="font-size: 12px; color: var(--text-dim); font-weight: 700;">Masukkan Nominal</p>
+            <div class="input-box">
+                <span>Rp</span>
+                <input type="number" id="deposit-amount" placeholder="0" oninput="this.value = Math.abs(this.value)">
+            </div>
+            <p style="font-size: 10px; color: var(--text-dim); margin-top: 15px;">Minimal pengisian adalah <b style="color:#fff;">Rp 2.000</b></p>
+            <button class="btn-premium" onclick="processDeposit()" id="btn-submit">
+                Lanjutkan Pembayaran
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+        </div>
+
+        <div id="step-payment" class="payment-view">
+            <div class="qr-section reveal">
+                <div class="status-pill"><div class="status-dot"></div> MENUNGGU PEMBAYARAN</div>
+                <br>
+                <div class="qr-container">
+                    <img id="qr-image" src="" alt="QRIS">
+                </div>
+            </div>
+
+            <div class="detail-group reveal" style="animation-delay: 0.2s;">
+                <div class="detail-header">
+                    <span>RINCIAN TRANSAKSI</span>
+                </div>
+                <div class="detail-body">
+                    <div class="detail-item">
+                        <span class="label">Order ID</span>
+                        <span class="value" id="disp-id">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Metode Pembayaran</span>
+                        <span class="value">QRIS All Payment</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Status Tagihan</span>
+                        <span class="value" style="color:var(--gold)">Unpaid</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Nominal Deposit</span>
+                        <span class="value" id="disp-amount-raw">-</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Biaya Layanan</span>
+                        <span class="value" style="color:var(--danger)">Rp 500</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="label">Waktu Expired</span>
+                        <span class="value" id="disp-expired" style="color:var(--danger)">-</span>
+                    </div>
+                </div>
+                <div class="detail-footer">
+                    <span class="label">TOTAL PEMBAYARAN</span>
+                    <span class="value" id="disp-total">-</span>
+                </div>
+            </div>
+
+            <div class="reveal" style="animation-delay: 0.3s;">
+                <button class="btn-premium" style="background:var(--accent); color:#fff;" onclick="checkStatus()" id="btn-check">Konfirmasi Pembayaran</button>
+                <button onclick="cancelTransaction()" style="width:100%; background:transparent; border:none; color:var(--danger); font-size:12px; font-weight:800; margin-top:15px; cursor:pointer; opacity:0.6;">BATALKAN PESANAN</button>
+            </div>
+        </div>
+
+        <div class="info-card reveal" style="animation-delay: 0.4s;">
+            <h4>INFORMASI PENTING</h4>
+            <p>1. Scan QRIS menggunakan aplikasi bank atau e-wallet (Dana, Ovo, GoPay, dll).<br>
+               2. Pastikan nominal yang dibayar **Sesuai** dengan Total Pembayaran.<br>
+               3. Saldo akan otomatis masuk ke akun Anda dalam hitungan detik.</p>
+        </div>
+    </main>
+
+    <nav class="navbar">
+        <a href="home.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            HOME
+        </a>
+        <a href="live.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.15 0a10 10 0 0 1 0-14.14"></path></svg>
+            LIVE
+        </a>
+        <a href="deposit.html" class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+            DEPOSIT
+        </a>
+        <a href="profile.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            PROFILE
+        </a>
+    </nav>
+
+    <script>
+        const API = 'api/api.php?action=';
+        let activeId = null;
+
+        async function init() {
+            try {
+                const res = await axios.get(API + 'get_active_deposit');
+                if (res.data.success && res.data.data) switchToPayment(res.data.data);
+            } catch (e) {}
+        }
+
+        async function processDeposit() {
+            const amount = document.getElementById('deposit-amount').value;
+            if (amount < 2000) return Swal.fire({ icon:'warning', title:'Minimal Rp 2.000', background:'#0b111a', color:'#fff' });
+            
+            const btn = document.getElementById('btn-submit');
+            btn.innerHTML = '<div class="loader"></div>';
+            
+            try {
+                const res = await axios.get(`${API}create_deposit&amount=${amount}`);
+                if (res.data.success) {
+                    switchToPayment(res.data.data);
+                } else {
+                    btn.innerText = 'Lanjutkan Pembayaran';
+                    Swal.fire({ icon:'error', title:res.data.message, background:'#0b111a', color:'#fff' });
+                }
+            } catch (e) { btn.innerText = 'Lanjutkan Pembayaran'; }
+        }
+
+        function switchToPayment(data) {
+            activeId = data.id;
+            document.getElementById('qr-image').src = data.qr;
+            document.getElementById('disp-id').innerText = '#' + data.id;
+            
+            const parseMoney = (val) => parseInt(String(val).replace(/[^0-9]/g, '')) || 0;
+            const total = parseMoney(data.amount); 
+            const admin = 500; 
+            const raw = total - admin;
+
+            document.getElementById('disp-amount-raw').innerText = 'Rp ' + raw.toLocaleString('id-ID');
+            document.getElementById('disp-total').innerText = 'Rp ' + total.toLocaleString('id-ID');
+            document.getElementById('disp-expired').innerText = data.expired_at || '15 Menit';
+
+            document.getElementById('step-input').style.display = 'none';
+            document.getElementById('step-payment').style.display = 'block';
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        async function checkStatus() {
+            const btn = document.getElementById('btn-check');
+            btn.innerHTML = '<div class="loader"></div>';
+            try {
+                const res = await axios.get(`${API}cek_deposit&id=${activeId}`);
+                if (res.data.success && res.data.data.status === 'success') {
+                    Swal.fire({ icon:'success', title:'Pembayaran Sukses!', text:'Saldo telah ditambahkan.', background:'#0b111a', color:'#fff' }).then(() => location.href='home.html');
+                } else {
+                    btn.innerText = 'Konfirmasi Pembayaran';
+                    Swal.fire({ icon:'info', title:'Belum Terdeteksi', text:'Jika sudah bayar, tunggu 30 detik lalu cek kembali.', background:'#0b111a', color:'#fff' });
+                }
+            } catch (e) { btn.innerText = 'Konfirmasi Pembayaran'; }
+        }
+
+        async function cancelTransaction() {
+            Swal.fire({ 
+                title: 'Batalkan Top Up?', 
+                text: "Tagihan ini akan dihapus secara permanen.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Ya, Batalkan',
+                background:'#0b111a', 
+                color:'#fff' 
+            }).then(async r => {
+                if(r.isConfirmed) { 
+                    await axios.get(`${API}cancel_deposit&id=${activeId}`); 
+                    location.reload(); 
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>

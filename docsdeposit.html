@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit API Docs | JASA OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { --bg: #0b0f1a; --card: #161b2b; --accent: #3b82f6; --text-dim: #94a3b8; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #e2e8f0; }
+        .code-block { font-family: 'JetBrains Mono', monospace; background: #010409 !important; border: 1px solid #2d333b; }
+        .sidebar-link.active { color: var(--accent); border-right: 2px solid var(--accent); background: linear-gradient(to right, transparent, rgba(59, 130, 246, 0.1)); }
+        .glass-header { background: rgba(11, 15, 26, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid #1e293b; }
+        .endpoint-badge { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="fixed top-0 w-full z-50 glass-header px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-lg shadow-lg shadow-blue-500/20">
+                    <i data-lucide="zap" class="w-5 h-5 text-white fill-current"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm font-extrabold tracking-tighter text-white uppercase">JASA OTP</h1>
+                    <p class="text-[10px] text-blue-400 font-bold tracking-widest leading-none">DEPOSIT API</p>
+                </div>
+            </div>
+            <nav class="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest">
+                <a href="#" class="text-blue-500">Docs</a>
+                <a href="#" class="text-slate-400 hover:text-white transition-colors">Deposit API</a>
+                <a href="https://t.me/jarrGanteng" class="text-slate-400 hover:text-white transition-colors">Support</a>
+            </nav>
+            <button class="md:hidden text-white"><i data-lucide="menu"></i></button>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto flex">
+        
+        <aside class="hidden md:block w-64 fixed h-full pt-28 px-6 border-r border-slate-800/50">
+            <div class="space-y-1">
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-4">Introduction</p>
+                <a href="#overview" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Overview</a>
+                <a href="#auth" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Authentication</a>
+                <a href="#flow" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Flow Deposit</a>
+                
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-8 mb-4">Endpoints</p>
+                <a href="#create" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Create Deposit</a>
+                <a href="#check" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Check Status</a>
+                <a href="#cancel" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Cancel Deposit</a>
+                
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-8 mb-4">Resources</p>
+                <a href="#status" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Status List</a>
+                <a href="#errors" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Error Response</a>
+                <a href="#security" class="sidebar-link block py-2 text-sm font-semibold hover:text-white transition-all">Security</a>
+            </div>
+        </aside>
+
+        <main class="flex-1 md:ml-64 px-6 md:px-12 pt-32 pb-24">
+            
+            <section id="overview" class="mb-20">
+                <h2 class="text-4xl md:text-5xl font-extrabold text-white tracking-tighter mb-6">Instant QRIS <span class="text-blue-500">Deposit.</span></h2>
+                <p class="text-lg text-slate-400 leading-relaxed max-w-2xl">
+                    JASA OTP Deposit API menyediakan sistem pengisian saldo otomatis menggunakan QRIS dengan proses real-time, aman, dan dirancang khusus untuk integrasi developer.
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+                    <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+                        <i data-lucide="zap" class="w-5 h-5 text-yellow-500 mb-2"></i>
+                        <p class="text-xs font-bold text-white">Real-time</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-emerald-500 mb-2"></i>
+                        <p class="text-xs font-bold text-white">Secure Sync</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+                        <i data-lucide="refresh-cw" class="w-5 h-5 text-blue-500 mb-2"></i>
+                        <p class="text-xs font-bold text-white">Auto Balance</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
+                        <i data-lucide="bot" class="w-5 h-5 text-purple-500 mb-2"></i>
+                        <p class="text-xs font-bold text-white">Bot Notify</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="auth" class="mb-20 scroll-mt-28">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="h-8 w-1 bg-blue-500 rounded-full"></div>
+                    <h3 class="text-2xl font-bold text-white">Authentication</h3>
+                </div>
+                <div class="p-6 rounded-3xl bg-[#161b2b] border border-slate-800">
+                    <p class="text-slate-400 text-sm mb-4 leading-relaxed">
+                        Endpoint deposit mewajibkan sesi login yang valid atau penggunaan API Key. Kirimkan Key melalui header atau pastikan session user aktif.
+                    </p>
+                    <div class="code-block rounded-xl p-4 flex justify-between items-center group">
+                        <code class="text-blue-400 text-xs">X-API-KEY: your_api_key_here</code>
+                        <button onclick="copyToClipboard('X-API-KEY: your_api_key_here')" class="opacity-0 group-hover:opacity-100 transition-opacity"><i data-lucide="copy" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="flow" class="mb-20 scroll-mt-28">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="h-8 w-1 bg-emerald-500 rounded-full"></div>
+                    <h3 class="text-2xl font-bold text-white">Flow Deposit QRIS</h3>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/30 border border-slate-800/50">
+                        <span class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">1</span>
+                        <p class="text-sm text-slate-300">User request <span class="text-white font-semibold">create_deposit</span> melalui API.</p>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/30 border border-slate-800/50">
+                        <span class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">2</span>
+                        <p class="text-sm text-slate-300">Sistem JASA OTP melakukan generate <span class="text-white font-semibold">Dynamic QRIS</span>.</p>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/30 border border-slate-800/50">
+                        <span class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold">3</span>
+                        <p class="text-sm text-slate-300">User melakukan scan dan pembayaran sukses.</p>
+                    </div>
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                        <span class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white">4</span>
+                        <p class="text-sm text-blue-100">Jika status <span class="font-bold">SUCCESS</span>, saldo user otomatis bertambah secara instan.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="create" class="mb-20 scroll-mt-28">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="h-8 w-1 bg-blue-500 rounded-full"></div>
+                        <h3 class="text-2xl font-bold text-white">Create Deposit</h3>
+                    </div>
+                    <span class="endpoint-badge px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic">GET /api.php</span>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <p class="text-sm text-slate-400">Endpoint ini digunakan untuk membuat tagihan deposit baru dengan output string QRIS atau URL QR.</p>
+                        <div class="space-y-2">
+                            <p class="text-[10px] font-bold uppercase text-slate-500">Parameters:</p>
+                            <div class="flex justify-between items-center p-3 rounded-lg bg-slate-900 border border-slate-800">
+                                <span class="text-xs text-blue-400 font-mono">amount</span>
+                                <span class="text-[10px] text-slate-500 font-bold uppercase">Required | Integer</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <p class="text-[10px] font-bold uppercase text-slate-500">Contoh Request:</p>
+                        <pre class="code-block rounded-xl p-4 text-[11px] text-emerald-400">?action=create_deposit&amount=10000</pre>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <p class="text-[10px] font-bold uppercase text-slate-500 mb-2">JSON Response:</p>
+                    <pre class="code-block rounded-2xl p-6 text-[11px] leading-relaxed">
+{
+  <span class="text-blue-400">"success"</span>: <span class="text-white">true</span>,
+  <span class="text-blue-400">"data"</span>: {
+    <span class="text-blue-400">"deposit_id"</span>: <span class="text-emerald-400">"DEP123456"</span>,
+    <span class="text-blue-400">"amount"</span>: <span class="text-white">10000</span>,
+    <span class="text-blue-400">"qr_url"</span>: <span class="text-emerald-400">"https://qris.link/xxxxx"</span>,
+    <span class="text-blue-400">"expired_at"</span>: <span class="text-emerald-400">"2026-01-25 12:00"</span>
+  }
+}</pre>
+                </div>
+            </section>
+
+            <section id="check" class="mb-20 scroll-mt-28">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="h-8 w-1 bg-amber-500 rounded-full"></div>
+                        <h3 class="text-2xl font-bold text-white">Check Deposit Status</h3>
+                    </div>
+                    <span class="endpoint-badge px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest italic">GET /api.php</span>
+                </div>
+                <p class="text-sm text-slate-400 mb-6">Lakukan polling ke endpoint ini untuk memantau apakah pembayaran sudah masuk.</p>
+                <div class="bg-amber-500/10 border-l-4 border-amber-500 p-4 rounded-r-2xl mb-6">
+                    <p class="text-xs text-amber-200">
+                        <b>Sistem Perilaku:</b> Jika status <code class="bg-black/30 px-1">success</code>, saldo user otomatis bertambah dan notifikasi dikirim ke Telegram Admin.
+                    </p>
+                </div>
+                <pre class="code-block rounded-2xl p-6 text-[11px] mb-4">?action=cek_deposit&id=DEP123456</pre>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800">
+                        <p class="text-[10px] font-bold text-slate-500 mb-2">IF PENDING:</p>
+                        <code class="text-blue-400 text-xs">{"success": true, "data": {"status": "pending"}}</code>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-900 border border-emerald-500/20">
+                        <p class="text-[10px] font-bold text-emerald-500 mb-2">IF SUCCESS:</p>
+                        <code class="text-emerald-400 text-xs">{"success": true, "data": {"status": "success"}}</code>
+                    </div>
+                </div>
+            </section>
+
+            <section id="status" class="mb-20 scroll-mt-28">
+                <h3 class="text-2xl font-bold text-white mb-6">Deposit Status List</h3>
+                <div class="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-900 text-[10px] font-black uppercase tracking-widest">
+                            <tr>
+                                <th class="px-6 py-4">Status</th>
+                                <th class="px-6 py-4 text-slate-400">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-slate-800 text-slate-400 text-[10px] font-bold">pending</span></td>
+                                <td class="px-6 py-4 text-slate-400">Menunggu pembayaran dari user</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase">success</span></td>
+                                <td class="px-6 py-4 text-slate-400 font-medium">Pembayaran diterima, saldo telah ditambahkan</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-red-500/20 text-red-400 text-[10px] font-bold uppercase">canceled</span></td>
+                                <td class="px-6 py-4 text-slate-400 italic">Deposit dibatalkan otomatis atau manual</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="security" class="mb-20 scroll-mt-28 p-8 rounded-3xl bg-gradient-to-br from-blue-600/10 to-transparent border border-blue-500/20">
+                <div class="flex items-center gap-3 mb-6">
+                    <i data-lucide="shield-check" class="text-blue-500"></i>
+                    <h3 class="text-2xl font-bold text-white">Notes & Security</h3>
+                </div>
+                <ul class="space-y-4 text-sm text-slate-300">
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-blue-500 mt-0.5"></i>
+                        Setiap deposit hanya diproses <span class="text-white font-bold">satu kali</span> (Anti-Double Processing).
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-blue-500 mt-0.5"></i>
+                        Sistem melakukan validasi <span class="text-white font-bold">X-API-KEY</span> dan Session secara ketat.
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <i data-lucide="check-circle-2" class="w-4 h-4 text-blue-500 mt-0.5"></i>
+                        Semua aktivitas transaksi tercatat di sistem log database dan dipantau via Telegram.
+                    </li>
+                </ul>
+            </section>
+
+            <footer class="pt-12 border-t border-slate-800 text-center">
+                <div class="flex justify-center gap-6 mb-6">
+                    <a href="https://t.me/jarrGanteng" class="p-3 bg-slate-900 rounded-full border border-slate-800 hover:border-blue-500 transition-all">
+                        <i data-lucide="send" class="w-5 h-5 text-blue-400"></i>
+                    </a>
+                    <a href="#" class="p-3 bg-slate-900 rounded-full border border-slate-800 hover:border-blue-500 transition-all">
+                        <i data-lucide="github" class="w-5 h-5 text-slate-400"></i>
+                    </a>
+                </div>
+                <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">© 2026 JASA OTP – SECURE • FAST • RELIABLE</p>
+            </footer>
+
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert("Copied to clipboard!");
+        }
+
+        // Active Link Highlighting
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll(".sidebar-link");
+
+        window.addEventListener("scroll", () => {
+            let current = "";
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            navLinks.forEach((link) => {
+                link.classList.remove("active");
+                if (link.getAttribute("href").includes(current)) {
+                    link.classList.add("active");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

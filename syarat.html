@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syarat & Ketentuan - JasaOTP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0c10;
+            --card: #161b22;
+            --accent: #58a6ff;
+            --border: #30363d;
+            --text-main: #f0f6fc;
+            --text-dim: #8b949e;
+            --error: #ff7b72;
+            --success: #3fb950;
+            --glass: rgba(22, 27, 34, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            padding-bottom: 40px;
+        }
+
+        /* Animasi Latar Belakang */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(88, 166, 255, 0.08) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(50px);
+        }
+
+        .header {
+            padding: 60px 20px 40px;
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tos-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .section:nth-child(1) { animation-delay: 0.2s; }
+        .section:nth-child(2) { animation-delay: 0.3s; }
+        .section:nth-child(3) { animation-delay: 0.4s; }
+        .section:nth-child(4) { animation-delay: 0.5s; }
+        .section:nth-child(5) { animation-delay: 0.6s; }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .icon-box {
+            width: 32px;
+            height: 32px;
+            background: rgba(88, 166, 255, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-weight: 800;
+            font-size: 14px;
+            border: 1px solid rgba(88, 166, 255, 0.2);
+        }
+
+        .section h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .section p {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        .alert-box {
+            background: rgba(248, 81, 73, 0.1);
+            border-left: 4px solid var(--error);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #ff9d94;
+            margin: 10px 0;
+        }
+
+        .info-box {
+            background: rgba(63, 185, 80, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #85e89d;
+            margin: 10px 0;
+        }
+
+        .footer-action {
+            margin-top: 40px;
+            text-align: center;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 0.8s;
+            opacity: 0;
+        }
+
+        .btn-back {
+            display: inline-block;
+            width: 100%;
+            padding: 18px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 20px;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent);
+            background: #1c2128;
+            transform: translateY(-2px);
+        }
+
+        /* Keyframes */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        strong {
+            color: var(--accent);
+        }
+
+        .scroll-indicator {
+            width: 4px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Syarat & Ketentuan</h1>
+        <p>User Agreement & Refund Policy</p>
+    </div>
+
+    <div class="container">
+        <div class="tos-card">
+            
+            <div class="section">
+                <div class="section-title">
+                    <div class="icon-box">01</div>
+                    <h2>Kualitas Layanan</h2>
+                </div>
+                <p>Kendala kegagalan menerima kode dapat terjadi karena faktor perangkat pengguna atau ketersediaan stok dari penyedia yang sedang kurang stabil.</p>
+                <p>Perlu diingat, nomor yang digunakan adalah <strong>nomor kosong (Virtual Number)</strong>, bukan seperti kartu pribadi yang dibeli langsung dari operator, sehingga wajar jika sesekali mengalami kendala teknis.</p>
+                <div class="info-box">
+                    Check nomor terlebih dahulu sebelum melakukan pendaftaran. Kamu mungkin perlu mencoba beberapa kali hingga berhasil.
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    <div class="icon-box">02</div>
+                    <h2>Kebijakan Pembatalan</h2>
+                </div>
+                <p>Jika tetap tidak berfungsi, silakan tunggu beberapa menit atau batalkan transaksi. Sistem akan memproses pengembalian saldo secara otomatis.</p>
+                <p>Saldo kamu akan dikembalikan <strong>100% tanpa potongan biaya</strong> jika transaksi dibatalkan sebelum kode SMS diterima.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    <div class="icon-box">03</div>
+                    <h2>Keamanan & VPN</h2>
+                </div>
+                <p>Aplikasi seperti WhatsApp dan Telegram memiliki sistem keamanan ketat. Sangat disarankan menggunakan <strong>VPN</strong> berkualitas untuk mengurangi risiko deteksi keamanan.</p>
+                <p>Jika kendala berlanjut, kemungkinan perangkat Anda terdeteksi mencurigakan oleh aplikasi atau kualitas nomor sedang menurun.</p>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    <div class="icon-box">04</div>
+                    <h2>Kebijakan Refund</h2>
+                </div>
+                <p>Refund saldo hanya berlaku ketika Anda <strong>belum menerima nomor atau kode verifikasi</strong>.</p>
+                <div class="alert-box">
+                    Jika nomor atau kode verifikasi <strong>sudah diterima</strong> oleh sistem, maka refund tidak dapat dilakukan dengan alasan apapun. Hal ini sudah di luar tanggung jawab kami.
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">
+                    <div class="icon-box">05</div>
+                    <h2>Saldo & Deposit</h2>
+                </div>
+                <p>Saldo yang sudah masuk ke dalam akun JasaOTP melalui deposit bersifat final.</p>
+                <div class="alert-box">
+                    Saldo <strong>TIDAK DAPAT DITARIK KEMBALI (REFUND)</strong> ke e-wallet (DANA, OVO, dll) atau rekening bank. Saldo hanya bisa digunakan untuk produk di aplikasi.
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-action">
+            <a href="profile.html" class="btn-back">SAYA MENGERTI & KEMBALI</a>
+        </div>
+    </div>
+
+</body>
+</html>

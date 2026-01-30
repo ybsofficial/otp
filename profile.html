@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profil Premium - JasaOTP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --bg: #06090f;
+            --card: #0d1117;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.2);
+            --border: rgba(48, 54, 61, 0.7);
+            --error: #ff7b72;
+            --success: #3fb950;
+            --text-main: #f0f6fc;
+            --text-dim: #8b949e;
+            --glass: rgba(13, 17, 23, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 120px;
+        }
+
+        .orb {
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            background: var(--accent);
+            filter: blur(120px);
+            opacity: 0.1;
+            z-index: -1;
+            border-radius: 50%;
+        }
+        .orb-1 { top: -50px; right: -50px; }
+        .orb-2 { bottom: 100px; left: -100px; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(63, 185, 80, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes spinCustom {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .reveal { opacity: 0; animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+
+        .header {
+            padding: 50px 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-pic-container {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            position: relative;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1f6feb, #06090f);
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 38px;
+            font-weight: 800;
+            color: white;
+            border: 2px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .active-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: var(--success);
+            color: white;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 6px 12px;
+            border-radius: 12px;
+            border: 3px solid var(--bg);
+            animation: pulse 2s infinite;
+        }
+
+        .name-wrapper h2 {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 4px;
+        }
+
+        .name-wrapper p {
+            color: var(--text-dim);
+            font-size: 14px;
+            background: rgba(255,255,255,0.05);
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 100px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+            border-radius: 30px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(88, 166, 255, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .balance-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            display: block;
+        }
+
+        .menu-grid {
+            background: var(--card);
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 25px;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .menu-link:last-child { border-bottom: none; }
+
+        .menu-link:active { background: rgba(88, 166, 255, 0.08); }
+
+        .menu-info { display: flex; align-items: center; gap: 18px; }
+
+        .menu-icon-circle {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            transition: 0.3s;
+        }
+
+        .menu-icon-circle svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2;
+        }
+
+        .menu-link:hover .menu-icon-circle {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px var(--accent-glow);
+        }
+
+        .menu-text b { font-size: 15px; display: block; margin-bottom: 2px; }
+        .menu-text span { font-size: 11px; color: var(--text-dim); }
+
+        .chevron svg {
+            width: 18px;
+            height: 18px;
+            stroke: var(--text-dim);
+            opacity: 0.5;
+            transition: 0.3s;
+        }
+
+        .menu-link:hover .chevron svg {
+            opacity: 1;
+            transform: translateX(4px);
+            stroke: var(--accent);
+        }
+
+        .btn-logout {
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 123, 114, 0.05);
+            border: 1px solid rgba(255, 123, 114, 0.2);
+            border-radius: 25px;
+            color: var(--error);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .btn-logout svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2.5;
+        }
+
+        .btn-logout:hover {
+            background: var(--error);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 123, 114, 0.3);
+        }
+
+        .navbar {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 440px;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 28px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-around;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-decoration: none;
+            color: var(--text-dim);
+            font-size: 10px;
+            font-weight: 800;
+            text-align: center;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .nav-item svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2.2;
+        }
+
+        .nav-item.active {
+            color: var(--accent);
+        }
+
+        .nav-item.active svg {
+            transform: translateY(-2px);
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, #161b22 25%, #232a35 50%, #161b22 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+            border-radius: 10px;
+            color: transparent !important;
+        }
+
+        .spinning {
+            animation: spinCustom 1s ease-in-out;
+        }
+
+        /* SweetAlert Custom Style for Dark Mode */
+        .swal2-popup-custom {
+            border-radius: 24px !important;
+            border: 1px solid var(--border) !important;
+        }
+        .swal2-input-custom {
+            background: #161b22 !important;
+            border: 1px solid var(--border) !important;
+            color: #fff !important;
+            border-radius: 12px !important;
+            font-size: 14px !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <header class="header reveal">
+        <div class="profile-pic-container">
+            <div class="profile-pic" id="initials">?</div>
+            <div class="active-badge">AKTIF</div>
+        </div>
+        <div class="name-wrapper">
+            <h2 id="profile-name" class="shimmer">Memuat Nama...</h2>
+            <p id="profile-role">Verified Gold Member</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="balance-card reveal delay-1">
+            <span class="balance-label">Total Saldo</span>
+            <span class="balance-amount" id="profile-balance">Rp 0</span>
+        </div>
+
+     <div class="balance-card reveal delay-3" style="background: var(--card); margin-top: 20px; border-style: dashed;">
+    <span class="balance-label">API Gateway Key</span>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 15px;">
+        <code id="api-key-display" style="font-family: monospace; color: var(--accent); font-size: 14px;">••••••••••••••••</code>
+        <div style="display: flex; gap: 12px;">
+            <button onclick="toggleApiKey()" style="background:none; border:none; color:var(--text-dim); cursor:pointer;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+            <button onclick="handleResetKey()" style="background:none; border:none; color:var(--error); cursor:pointer;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+        <div class="menu-grid reveal delay-2">
+            <div class="menu-link" onclick="handleTransfer()" style="cursor: pointer;">
+                <div class="menu-info">
+                    <div class="menu-icon-circle" style="color: #3fb950;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                    </div>
+                    <div class="menu-text">
+                        <b>Transfer Saldo</b>
+                        <span>Kirim saldo ke sesama member</span>
+                    </div>
+                </div>
+                <div class="chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+            </div>
+
+            <a href="password.html" class="menu-link">
+                <div class="menu-info">
+                    <div class="menu-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </div>
+                    <div class="menu-text">
+                        <b>Keamanan</b>
+                        <span>Ganti password akun</span>
+                    </div>
+                </div>
+                <div class="chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+            </a>
+
+            <a href="riwayat.html" class="menu-link">
+                <div class="menu-info">
+                    <div class="menu-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </div>
+                    <div class="menu-text">
+                        <b>Riwayat Transaksi</b>
+                        <span>Cek aktivitas topup</span>
+                    </div>
+                </div>
+                <div class="chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+            </a>
+
+          <a href="docs.html" class="menu-link">
+    <div class="menu-info">
+        <div class="menu-icon-circle" style="color: #00d4ff; background: rgba(0, 212, 255, 0.1);">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <div class="menu-text">
+               <b>API Gateway</b>
+                <span>Dokumentasi integrasi sistem</span>
+              </div>
+           </div>
+              <div class="chevron">
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+             </div>
+         </a>
+
+            <a href="syarat.html" class="menu-link">
+                <div class="menu-info">
+                    <div class="menu-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    </div>
+                    <div class="menu-text">
+                        <b>Legalitas</b>
+                        <span>Syarat & Ketentuan</span>
+                    </div>
+                </div>
+                <div class="chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+            </a>
+
+            <a href="https://t.me/jarrGanteng" target="_blank" class="menu-link">
+                <div class="menu-info">
+                    <div class="menu-icon-circle">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    </div>
+                    <div class="menu-text">
+                        <b>Bantuan</b>
+                        <span>Hubungi Admin Telegram</span>
+                    </div>
+                </div>
+                <div class="chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+            </a>
+
+            <div class="menu-link" onclick="handleSync(this)" style="cursor: pointer;">
+                <div class="menu-info">
+                    <div class="menu-icon-circle" id="sync-icon-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    </div>
+                    <div class="menu-text">
+                        <b>Sinkronisasi</b>
+                        <span>Refresh data profil</span>
+                    </div>
+                </div>
+                <div class="chevron">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-logout reveal delay-3" id="btnLogout">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>KELUAR DARI SISTEM</span>
+        </button>
+    </main>
+
+    <nav class="navbar">
+        <a href="home.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            HOME
+        </a>
+        <a href="live.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"></circle><path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.15 0a10 10 0 0 1 0-14.14"></path></svg>
+            LIVE
+        </a>
+        <a href="deposit.html" class="nav-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+            DEPOSIT
+        </a>
+        <a href="profile.html" class="nav-item active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            PROFILE
+        </a>
+    </nav>
+
+    <script>
+        let currentSaldo = 0;
+        let realApiKey = ''; // Untuk menyimpan key asli
+        let isKeyVisible = false;
+
+        function animateBalance(target) {
+            let start = 0;
+            const duration = 1500;
+            const obj = document.getElementById('profile-balance');
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(progress * target);
+                obj.innerText = 'Rp ' + current.toLocaleString('id-ID');
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        async function loadProfile() {
+    try {
+        const res = await axios.get('../api/api.php?action=get_profile');
+        if(res.data.success) {
+            const user = res.data.data;
+            currentSaldo = parseInt(user.saldo);
+            realApiKey = user.api_key; // Simpan key asli di sini
+            
+            // Update UI
+            const nameEl = document.getElementById('profile-name');
+            nameEl.classList.remove('shimmer');
+            nameEl.innerText = user.username;
+            document.getElementById('initials').innerText = user.username.charAt(0).toUpperCase();
+            animateBalance(currentSaldo);
+        } else {
+            location.href = 'index.html';
+        }
+    } catch(e) {
+        console.error("Gagal memuat profil");
+    }
+}
+// Fungsi untuk Intip/Sembunyikan Key
+function toggleApiKey() {
+    const display = document.getElementById('api-key-display');
+    const isHidden = display.innerText.includes('•');
+    
+    if (isHidden) {
+        display.innerText = realApiKey;
+        // Klik untuk salin otomatis saat diintip
+        navigator.clipboard.writeText(realApiKey);
+        Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: 'Key ditampilkan & disalin!',
+            showConfirmButton: false,
+            timer: 1500,
+            background: '#0d1117',
+            color: '#fff'
+        });
+    } else {
+        display.innerText = '••••••••••••••••';
+    }
+}
+
+// Fungsi Reset/Generate Ulang API Key
+async function handleResetKey() {
+    const result = await Swal.fire({
+        title: 'Reset API Key?',
+        text: "API Key lama tidak akan bisa digunakan lagi!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ff7b72',
+        confirmButtonText: 'Ya, Ganti Baru',
+        background: '#0d1117',
+        color: '#fff'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const res = await axios.get('../api/api.php?action=reset_api_key');
+            if (res.data.success) {
+                realApiKey = res.data.api_key;
+                isKeyVisible = true;
+                document.getElementById('api-key-display').innerText = realApiKey;
+                Swal.fire({ icon: 'success', title: 'Berhasil', text: 'API Key baru telah dibuat', background: '#0d1117', color: '#fff' });
+            }
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan sistem', background: '#0d1117', color: '#fff' });
+        }
+    }
+}
+
+        // FUNGSI TRANSFER SALDO
+        async function handleTransfer() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Transfer Saldo',
+                html:
+                    '<input id="swal-input1" class="swal2-input swal2-input-custom" placeholder="Username Penerima">' +
+                    '<input id="swal-input2" type="number" class="swal2-input swal2-input-custom" placeholder="Nominal Rp">',
+                focusConfirm: false,
+                background: '#0d1117',
+                color: '#fff',
+                showCancelButton: true,
+                confirmButtonText: 'Kirim Sekarang',
+                confirmButtonColor: '#3fb950',
+                customClass: { popup: 'swal2-popup-custom' },
+                preConfirm: () => {
+                    const target = document.getElementById('swal-input1').value;
+                    const amount = document.getElementById('swal-input2').value;
+                    if (!target || !amount) {
+                        Swal.showValidationMessage('Harap isi semua kolom');
+                        return false;
+                    }
+                    if (parseInt(amount) < 1000) {
+                        Swal.showValidationMessage('Minimal transfer Rp 1.000');
+                        return false;
+                    }
+                    if (parseInt(amount) > currentSaldo) {
+                        Swal.showValidationMessage('Saldo Anda tidak cukup');
+                        return false;
+                    }
+                    return { target: target, amount: amount };
+                }
+            });
+
+            if (formValues) {
+                Swal.fire({
+                    title: 'Memproses...',
+                    didOpen: () => { Swal.showLoading(); },
+                    background: '#0d1117',
+                    color: '#fff',
+                    allowOutsideClick: false
+                });
+
+                try {
+                    const res = await axios.post('../api/api.php?action=transfer_saldo', {
+                        target_username: formValues.target,
+                        amount: formValues.amount
+                    });
+
+                    if (res.data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Transfer Berhasil',
+                            text: `Berhasil mengirim Rp ${parseInt(formValues.amount).toLocaleString('id-ID')} ke ${formValues.target}`,
+                            background: '#0d1117',
+                            color: '#fff',
+                            confirmButtonColor: '#58a6ff'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal', text: res.data.message, background: '#0d1117', color: '#fff' });
+                    }
+                } catch (e) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Terjadi kesalahan sistem', background: '#0d1117', color: '#fff' });
+                }
+            }
+        }
+
+        function handleSync(el) {
+            const iconBox = document.getElementById('sync-icon-box');
+            iconBox.classList.add('spinning');
+            setTimeout(() => {
+                location.reload();
+            }, 600);
+        }
+
+        document.getElementById('btnLogout').onclick = () => {
+            Swal.fire({
+                title: 'Akhiri Sesi?',
+                text: "Anda perlu login kembali untuk mengakses layanan.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ff7b72',
+                cancelButtonColor: '#30363d',
+                confirmButtonText: 'Ya, Keluar',
+                background: '#0d1117',
+                color: '#fff'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    location.href = 'index.html';
+                }
+            })
+        };
+
+        window.onload = loadProfile;
+    </script>
+</body>
+</html>

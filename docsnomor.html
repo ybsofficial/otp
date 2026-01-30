@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API DOCUMENTATION | V1 STABLE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { --bg: #030712; --card: rgba(17, 24, 39, 0.7); --primary: #8b5cf6; --secondary: #10b981; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: #94a3b8; letter-spacing: -0.01em; }
+        
+        /* Glassmorphism Effect */
+        .glass-card { 
+            background: var(--card); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+
+        /* Smooth Animation */
+        .reveal { opacity: 0; transform: translateY(15px); transition: 0.6s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        pre { 
+            background: #000000 !important; 
+            border: 1px solid #1f2937; 
+            border-radius: 16px; 
+            padding: 1.25rem; 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 11px; 
+            color: #d1d5db;
+            line-height: 1.6;
+        }
+
+        .badge { font-size: 9px; font-weight: 800; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; }
+        .badge-get { background: rgba(139, 92, 246, 0.1); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); }
+        
+        /* Gradient Text */
+        .text-gradient { background: linear-gradient(to right, #a78bfa, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="fixed top-0 w-full z-50 bg-[#030712]/80 backdrop-blur-xl border-b border-white/5 px-6 py-4 flex justify-between items-center">
+        <a href="docs.html" class="flex items-center gap-2 group text-gray-400 hover:text-white transition-all">
+            <div class="bg-white/5 p-2 rounded-lg group-hover:bg-violet-500/20 transition-all">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-widest">Back</span>
+        </a>
+
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gradient-to-br from-violet-500 to-emerald-500 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <i data-lucide="layers" class="w-5 h-5 text-white"></i>
+            </div>
+            <h1 class="text-sm font-black text-white tracking-tighter uppercase">API <span class="text-emerald-500">Explorer</span></h1>
+        </div>
+
+        <div class="w-10"></div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-6 pt-24 pb-20 space-y-10">
+        
+        <header class="reveal active space-y-3">
+            <div class="inline-block px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                <p class="text-[9px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Endpoint V1 Stable
+                </p>
+            </div>
+            <h2 class="text-4xl font-extrabold text-white tracking-tight">OTP Documentation</h2>
+            <p class="text-sm text-gray-500 leading-relaxed max-w-lg">Dokumentasi endpoint lengkap untuk modul negara, operator, layanan, pemesanan, pengecekan SMS, dan pembatalan nomor.</p>
+        </header>
+
+        <div class="grid md:grid-cols-3 gap-4 reveal active">
+            <div class="glass-card p-5 space-y-3">
+                <div class="flex justify-between items-start">
+                    <span class="badge badge-get">GET</span>
+                    <i data-lucide="globe" class="w-4 h-4 text-violet-400"></i>
+                </div>
+                <h4 class="text-white font-bold text-sm tracking-tight">get_negara</h4>
+                <code class="text-[10px] text-emerald-400 block bg-black/40 p-2 rounded-md">?action=get_negara</code>
+            </div>
+
+            <div class="glass-card p-5 space-y-3">
+                <div class="flex justify-between items-start">
+                    <span class="badge badge-get">GET</span>
+                    <i data-lucide="signal" class="w-4 h-4 text-violet-400"></i>
+                </div>
+                <h4 class="text-white font-bold text-sm tracking-tight">get_operator</h4>
+                <code class="text-[10px] text-emerald-400 block bg-black/40 p-2 rounded-md">?action=get_operator&negara=ID</code>
+            </div>
+
+            <div class="glass-card p-5 space-y-3">
+                <div class="flex justify-between items-start">
+                    <span class="badge badge-get">GET</span>
+                    <i data-lucide="box" class="w-4 h-4 text-violet-400"></i>
+                </div>
+                <h4 class="text-white font-bold text-sm tracking-tight">get_layanan</h4>
+                <code class="text-[10px] text-emerald-400 block bg-black/40 p-2 rounded-md">?action=get_layanan&negara=ID</code>
+            </div>
+        </div>
+
+        <section class="reveal active">
+            <div class="glass-card overflow-hidden">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                    <div class="flex items-center gap-3">
+                        <span class="badge badge-get">GET</span>
+                        <h3 class="text-white font-extrabold tracking-tight">order_nomor</h3>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-xs text-gray-400 leading-relaxed">Endpoint untuk menyewa nomor baru. Sistem akan mengecek saldo user sebelum memproses request ke provider.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-[10px] bg-black/50 px-2 py-1 rounded border border-white/5 text-gray-300 italic">negara</span>
+                        <span class="text-[10px] bg-black/50 px-2 py-1 rounded border border-white/5 text-gray-300 italic">layanan</span>
+                        <span class="text-[10px] bg-black/50 px-2 py-1 rounded border border-white/5 text-gray-300 italic">operator</span>
+                        <span class="text-[10px] bg-black/50 px-2 py-1 rounded border border-white/5 text-gray-300 italic">harga</span>
+                    </div>
+                    <pre><span class="text-emerald-500">"success"</span>: <span class="text-violet-400">true</span>,<br><span class="text-emerald-500">"data"</span>: { <span class="text-emerald-500">"id"</span>: <span class="text-gray-400">"552"</span>, <span class="text-emerald-500">"number"</span>: <span class="text-gray-400">"628123xxx"</span> }</pre>
+                </div>
+            </div>
+        </section>
+
+        <section class="reveal active">
+            <div class="glass-card overflow-hidden">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                    <div class="flex items-center gap-3">
+                        <span class="badge badge-get">GET</span>
+                        <h3 class="text-white font-extrabold tracking-tight">cek_sms</h3>
+                    </div>
+                    <i data-lucide="send" class="w-4 h-4 text-emerald-500"></i>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-xs text-gray-400 leading-relaxed">Mengambil kode OTP. Jika OTP masuk, sistem memicu notifikasi Telegram dan mencatat log transaksi secara otomatis.</p>
+                    <code class="text-[11px] text-emerald-400 block bg-black/40 p-3 rounded-xl border border-white/5">?action=cek_sms&id=ORDER_ID</code>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <pre class="!p-4 text-[10px]"><span class="text-gray-500">// Menunggu</span><br>{ <span class="text-emerald-500">"otp"</span>: <span class="text-gray-400">"Menunggu..."</span> }</pre>
+                        <pre class="!p-4 text-[10px]"><span class="text-gray-500">// Berhasil</span><br>{ <span class="text-emerald-500">"otp"</span>: <span class="text-violet-400">"123456"</span> }</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="reveal active">
+            <div class="glass-card overflow-hidden border-red-500/20">
+                <div class="p-6 border-b border-white/5 flex justify-between items-center bg-red-500/[0.02]">
+                    <div class="flex items-center gap-3">
+                        <span class="badge badge-get !bg-red-500/10 !text-red-400 !border-red-500/20">GET</span>
+                        <h3 class="text-white font-extrabold tracking-tight">cancel_nomor</h3>
+                    </div>
+                    <i data-lucide="refresh-cw" class="w-4 h-4 text-red-500"></i>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-xs text-gray-400 leading-relaxed">Membatalkan pesanan yang belum menerima OTP. Saldo akan otomatis di-refund ke akun user jika pembatalan sukses.</p>
+                    <pre><span class="text-emerald-500">"success"</span>: <span class="text-violet-400">true</span>,<br><span class="text-red-400">"refunded_amount"</span>: <span class="text-gray-400">2500</span></pre>
+                </div>
+            </div>
+        </section>
+
+        <footer class="pt-10 text-center">
+            <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-600">JASA OTP API • SECURE PRODUCTION</p>
+        </footer>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
