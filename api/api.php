@@ -23,12 +23,12 @@ $KEY_ATLANTIC = "cIr6yFSfNiCtzfOw50IIb8xvviGlG4U9o7wLe60Pvrz9os0Ff0ARoAMKdNj7Yyq
 $BASE_URL_ATLANTIC = "https://atlantich2h.com";
 
 // --- OWNER CONFIG ---
-$OWNER_USER = "jarr";
-$OWNER_PASS = "owner"; 
+$OWNER_USER = "ybs";
+$OWNER_PASS = "ybs"; 
 
 // --- TELEGRAM CONFIG ---
-$TELE_TOKEN = "8406572685:AAFZM802DOlHUbB0McQnrREmgFOH4o5p-BI";
-$TELE_CHAT_ID = "-1003648588091";
+$TELE_TOKEN = "8463581241:AAHCgEe8D_kLnfxrcfXJTmPK4MPHYWWgC_I";
+$TELE_CHAT_ID = "5700821080";
 
 // --- DATABASE FUNCTIONS ---
 function get_db() {
